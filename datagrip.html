@@ -1,0 +1,211 @@
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+
+
+SHOW DATABASES;
+DROP DATABASE LB03_Dispesnations;
+CREATE DATABASE LB03_Dispensations /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */;
+
+
+use LB03_Dispensations;
+
+-- Students Table
+CREATE TABLE Students (
+Student_ID INT PRIMARY KEY,
+Salutation VARCHAR(50),
+Email VARCHAR(100),
+Number VARCHAR(20),
+Class VARCHAR(20)
+);
+
+-- Vocational Courses Table
+CREATE TABLE VocationalCourses (
+VocationalCourse_ID INT PRIMARY KEY,
+VocationalCourse VARCHAR(50)
+);
+
+-- Location Table
+CREATE TABLE Location (
+Location_ID INT PRIMARY KEY,
+Location VARCHAR(50)
+);
+
+-- Absence Table
+CREATE TABLE Absence (
+Absence_ID INT PRIMARY KEY,
+AbsenceType VARCHAR(50),
+Reason VARCHAR(255)
+);
+
+-- Lessons Table
+CREATE TABLE Lessons (
+Lessons_ID INT PRIMARY KEY,
+Missing_Lessons_Count INT,
+Affected_Teacher INT,
+Student_ID INT,
+FOREIGN KEY (Affected_Teacher) REFERENCES Teachers(Teacher_ID),
+FOREIGN KEY (Student_ID) REFERENCES Students(Student_ID)
+);
+
+-- Teachers Table
+CREATE TABLE Teachers (
+Teacher_ID INT PRIMARY KEY,
+Teacher_Name VARCHAR(100)
+);
+
+-- Attachments Table
+CREATE TABLE Attachments (
+Attachment_ID INT PRIMARY KEY,
+Description VARCHAR(255),
+FilePath VARCHAR(255),
+Student_ID INT,
+FOREIGN KEY (Student_ID) REFERENCES Students(Student_ID)
+);
+
+-- Dispensation Table
+CREATE TABLE Dispensation (
+Dispensation_ID INT PRIMARY KEY,
+Dispensation_Date DATE,
+Student_ID INT,
+Absence_ID INT,
+Attachments_ID INT,
+FOREIGN KEY (Student_ID) REFERENCES Students(Student_ID),
+FOREIGN KEY (Absence_ID) REFERENCES Absence(Absence_ID),
+FOREIGN KEY (Attachments_ID) REFERENCES Attachments(Attachment_ID)
+);
+
+-- User Table (optional)
+CREATE TABLE User (
+User_ID INT PRIMARY KEY,
+Username VARCHAR(50),
+Password VARCHAR(255),
+Student_ID INT,
+FOREIGN KEY (Student_ID) REFERENCES Students(Student_ID)
+);
+
+-- Administrator Table (optional)
+CREATE TABLE Administrator (
+Administrator_ID INT PRIMARY KEY,
+Username VARCHAR(50),
+Password VARCHAR(255)
+);
+
+-- Notes Table (optional)
+CREATE TABLE Notes (
+Note_ID INT PRIMARY KEY,
+Student_ID INT,
+Date DATE,
+NoteText TEXT,
+FOREIGN KEY (Student_ID) REFERENCES Students(Student_ID)
+);
+
+-- Dispensation Status Table (optional)
+CREATE TABLE DispensationStatus (
+Status_ID INT PRIMARY KEY,
+Dispensation_ID INT,
+Status VARCHAR(50),
+Comment TEXT,
+FOREIGN KEY (Dispensation_ID) REFERENCES Dispensation(Dispensation_ID)
+);
+
+
+-- Schüler-Tabelle
+INSERT INTO Students (Student_ID, Salutation, Email, Number, Class)
+VALUES
+(1, 'Mr', 'john.doe@example.com', 'S12345', '10A'),
+(2, 'Ms', 'jane.smith@example.com', 'S67890', '11B'),
+(3, 'Dr', 'robert.jones@example.com', 'S24680', '9C'),
+(4, 'Mrs', 'emily.white@example.com', 'S13579', '12D');
+
+-- Lehrberuf-Tabelle
+INSERT INTO VocationalCourses (VocationalCourse_ID, VocationalCourse)
+VALUES
+(1, 'Computer Science'),
+(2, 'Electrical Engineering'),
+(3, 'Nursing'),
+(4, 'Culinary Arts');
+
+-- Standort-Tabelle
+INSERT INTO Location (Location_ID, Location)
+VALUES
+(1, 'Main Campus'),
+(2, 'North Campus'),
+(3, 'South Campus'),
+(4, 'East Campus');
+
+-- Abwesenheit-Tabelle
+INSERT INTO Absence (Absence_ID, AbsenceType, Reason)
+VALUES
+(1, 'Excused', 'Medical appointment'),
+(2, 'Unexcused', 'Missed bus'),
+(3, 'Excused', 'Family emergency'),
+(4, 'Unexcused', 'Overslept');
+
+-- Read (Retrieve) Operation: Alle Schüler abrufen
+SELECT * FROM Students;
+-- Read Operation: Alle Lehrberufe abrufen
+SELECT * FROM VocationalCourses;
+-- Read Operation: Alle Standorte abrufen
+SELECT * FROM Location;
+-- Read Operation: Alle Arten von Abwesenheiten abrufen
+SELECT * FROM Absence;
+-- Read Operation: Alle Lektionen abrufen
+SELECT L.*, T.Teacher_Name, S.Salutation, S.Email
+FROM Lessons L
+JOIN Teachers T ON L.Affected_Teacher = T.Teacher_ID
+JOIN Students S ON L.Student_ID = S.Student_ID;
+-- Read Operation: Alle Lehrer abrufen
+SELECT * FROM Teachers;
+-- Read Operation: Alle Beilagen abrufen
+SELECT B.*, S.Salutation, S.Email
+FROM Attachments B
+JOIN Students S ON B.Student_ID = S.Student_ID;
+-- Read Operation: Alle Dispensationen abrufen
+SELECT D.*, S.Salutation, A.AbsenceType, B.Description
+FROM Dispensation D
+JOIN Students S ON D.Student_ID = S.Student_ID
+JOIN Absence A ON D.Absence_ID = A.Absence_ID
+JOIN Attachments B ON D.Attachments_ID = B.Attachment_ID;
+-- Read Operation: Alle Benutzer abrufen
+SELECT * FROM User;
+-- Read Operation: Alle Administratoren abrufen
+SELECT * FROM Administrator;
+-- Read Operation: Alle Notizen abrufen
+SELECT * FROM Notes;
+-- Read Operation: Alle Dispensationsstatus abrufen
+SELECT * FROM DispensationStatus;
+
+
+
+
+
+
+SELECT user FROM mysql.user;
+DROP USER 'userbzz'@'localhost';
+CREATE USER  'userbzz'@'localhost' IDENTIFIED BY'PWLB03';
+ALTER USER 'userbzz'@'localhost' IDENTIFIED WITH mysql_native_password BY 'PWLB03';
+--    host: 'localhost',
+--    user: 'userbzz',
+--    password: 'PWLB03',
+--    database: 'LB03_Dispensations',
+GRANT all privileges ON LB03_Dispensations.* TO 'userbzz'@'localhost';
+FLUSH PRIVILEGES;
+SELECT user,host FROM mysql.user;
+SHOW GRANTS FOR userbzz@localhost;

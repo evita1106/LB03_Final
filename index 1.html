@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="server.js"></script>
+    <title>Dispensation Request</title>
+</head>
+<body>
+<form action="http://localhost:3306/submitForm" method="post">
+    <div class="dispensation-form">
+    <h2>dispensation</h2>
+
+        <!-- Ihre Formularfelder -->
+        <label for="salutation">Salutation:</label>
+        <select id="salutation" class="salutation" name="salutation" required>
+            <option value="Mr">Mr</option>
+            <option value="Mrs">Mrs</option>
+            <option value="NonBinary">Non-Binary</option>
+        </select>
+
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="number">Number:</label>
+            <input type="text" id="number" name="number" required>
+
+             <label for="class">Class:</label>
+             <input type="text" id="class" name="class" required>
+
+             <label for="vocational_course">Vocational Course:</label>
+            <input type="text" id="vocational_course" name="vocational_course" required>
+
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location" required>
+
+            <label for="absence_type" >Type of Absence:</label>
+            <select class="excused" id="absence_type" name="absence_type" required>
+                <option value="excused">Excused</option>
+                <option value="unexcused">Unexcused</option>
+            </select>
+
+            <label for="reason">Reason:</label>
+            <textarea class="reason" id="reason" name="reason" rows="4" required></textarea>
+
+            <label for="missing_lessons">Number of Missing Lessons (only numbers): </label>
+            <input type="number" id="missing_lessons" name="missing_lessons" class="lessons" required>
+
+            <label for="affected_teacher">Affected Teacher:</label>
+            <input type="text" id="affected_teacher" name="affected_teacher" class="teacher" required>
+
+            <label for="attachments">Attachments:</label>
+            <input type="file" id="attachments" name="attachments" multiple>
+        <input class="submit" type="submit" value="Submit">
+    </div>
+
+
+<input class="submit" type="submit" value="Absenden">
+<script>
+    document.getElementById('dispensationForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const formData = {
+            // Sammeln Sie die Daten aus Ihren Formularfeldern
+            salutation: document.getElementById('salutation').value,
+            name: document.getElementById('name').value,
+            // ... (füllen Sie die restlichen Felder aus)
+        };
+
+        // Senden Sie die Daten an den Server
+        fetch('http://localhost:3306/submitForm', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Server-Antwort:', data);
+                // Hier können Sie weitere Aktionen nach der Datenbankoperation durchführen
+            })
+            .catch(error => {
+                console.error('Fehler beim Senden der Daten an den Server:', error);
+            });
+    });
+</script>
+
+</form>
+</body>
+</html>
+
